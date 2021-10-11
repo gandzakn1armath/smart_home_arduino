@@ -1,3 +1,7 @@
+#include <Servo.h>
+
+Servo myservo;
+bool doorOpen = false;
 const int buzzer = 4;
 int led1pin1 = 2;
 int led1pin2 = 3;
@@ -39,8 +43,22 @@ tone(buzzer, 1000);
 void buzzerOff(){
  noTone(buzzer);  
 }
+void dooropen(){
+  Serial.begin(9600);
+  myservo.attach(10);
+  myservo.write(140);
+  delay(1000);
+  
+}
+void doorclose(){
+  Serial.begin(9600);
+  myservo.attach(10);
+  myservo.write(0);
+  delay(1000);
+  
+}
 void setup() {
-  // put your setup code here, to run once:
+  
   pinMode(led1pin1, OUTPUT);
   pinMode(led1pin2, OUTPUT);
   pinMode(led2pin1, OUTPUT);
@@ -65,6 +83,11 @@ void loop() {
  delay(1000); 
  greenOff();
  delay(1000); 
+ doorclose();
+ dooropen();
+ buzzerOn();
+ delay(1000);
+ buzzerOff();
 
   
  
