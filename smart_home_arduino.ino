@@ -3,6 +3,9 @@
 
 Servo myservo;
 bool isDoorOpen = false;
+bool isOrangeOn = false;
+bool isBlueOn = false;
+bool isGreenOn = false;
 const int buzzer = 4;
 int led1pin1 = 2;
 int led1pin2 = 3;
@@ -10,6 +13,7 @@ int led2pin1 = 8;
 int led2pin2 = 9;
 int led3pin1 = 11;
 int led3pin2 = 12;
+
 
 
 const byte ROWS = 4; 
@@ -28,6 +32,7 @@ byte colPins[COLS] = {17,16,15,14};
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
 
 
+
 void blueOn(){
   digitalWrite(led1pin1, LOW);
   digitalWrite(led1pin2, HIGH); 
@@ -41,32 +46,38 @@ void orangeOn(){
   digitalWrite(led2pin1, LOW);
   digitalWrite(led2pin2, HIGH);
 }
+
+void orangeOff(){
+  digitalWrite(led2pin1, LOW);
+  digitalWrite(led2pin2, LOW);
+}
+
 void greenOn(){
   digitalWrite(led3pin1, HIGH);
   digitalWrite(led3pin2, LOW);
 }
 
-
-void orangeOff(){
-  digitalWrite(led2pin1, LOW);
-  digitalWrite(led2pin2, LOW);
- }
 void greenOff(){
   digitalWrite(led3pin1, LOW);
   digitalWrite(led3pin2, LOW);
-  }
-void buzzerOn(){
-tone(buzzer, 1000);    
 }
+  
+void buzzerOn(){
+  tone(buzzer, 1000);    
+}
+
 void buzzerOff(){
- noTone(buzzer);  
+  noTone(buzzer);  
 }
 
 void doorOpen(){
   myservo.write(140); 
+  isDoorOpen = true;
 }
+
 void doorClose(){
   myservo.write(0); 
+  isDoorOpen = false;
 }
 
 void allLightsOff(){
@@ -87,15 +98,46 @@ void allLightsOn(){
 
 void doorState(){
 if (isDoorOpen){
-  doorClose();
   allLightsOff();
-  isDoorOpen = false;
+  doorClose();
 }else{
   doorOpen();
-  allLightsOn();
-  isDoorOpen = true;
+  allLightsOn(); 
 }
 }
+
+void ledOrangeState(){
+if (isOrangeOn){
+  orangeOff();
+  isOrangeOn = false;
+}else{
+  orangeOn();
+  isOrangeOn = true;
+}
+}
+
+
+void ledBlueState(){
+if (isBlueOn){
+  blueOff();
+  isBlueOn = false;
+}else{
+  blueOn();
+  isBlueOn = true;
+}
+}
+
+
+void ledGreenState(){
+if (isGreenOn){
+  greenOff();
+  isGreenOn = false;
+}else{
+  greenOn();
+  isGreenOn = true;
+}
+}
+
 void setup() {
   Serial.begin(9600);
   myservo.attach(10);
@@ -112,8 +154,29 @@ void setup() {
 
 void loop() {
  char customKey = customKeypad.getKey();
+
+ if (Serial.available()){
+    int val = Serial.read();
+     Serial.println(val);
+     if (val == 49){
+      ledGreenState();
+    }
+     
+     if (val == 50){
+      ledOrangeState();
+    }
+    
+     if (val == 51){
+      ledBlueState();
+    }
+
+     if (val == 52){
+      doorState();
+    }
+    
+ }
+  
  if (customKey){
- 
   Serial.println(customKey);
   if (customKey == 'D'){
      Serial.println(key);
@@ -127,9 +190,7 @@ void loop() {
       }
      key = "";
   }else{
-     
       key = key + customKey; 
-       
   }
  }
 
